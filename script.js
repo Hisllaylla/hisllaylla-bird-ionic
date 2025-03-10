@@ -2,20 +2,20 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// Game settings
-const GRAVITY = 0.5;
+// Game settings - easier gameplay
+const GRAVITY = 0.4;
 const BIRD_WIDTH = 34;
 const BIRD_HEIGHT = 24;
 const PIPE_WIDTH = 50;
-const PIPE_GAP = 100;
-const PIPE_SPEED = 2;
+const PIPE_GAP = 120;
+const PIPE_SPEED = 1.5;
 
 // Bird state
 let bird = {
   x: 50,
   y: canvas.height / 2,
   velocity: 0,
-  jumpStrength: -8,
+  jumpStrength: -6,
 };
 
 // Pipes array
@@ -43,7 +43,7 @@ function resetGame() {
     x: 50,
     y: canvas.height / 2,
     velocity: 0,
-    jumpStrength: -8,
+    jumpStrength: -6,
   };
   pipes = [];
   frameCount = 0;
@@ -128,15 +128,15 @@ function draw() {
     // Top pipe
     ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.gapStart);
     // Bottom pipe
-    ctx.fillRect(pipe.x, pipe.gapStart + PIPE_GAP, PIPE_WIDTH, canvas.height - pipe.gapStart - PIPE_GAP);
+    ctx.fillRect(
+      pipe.x,
+      pipe.gapStart + PIPE_GAP,
+      PIPE_WIDTH,
+      canvas.height - pipe.gapStart - PIPE_GAP
+    );
   });
 
-  // Draw score
-  ctx.fillStyle = "#000";
-  ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 10, 25);
-
-  // Draw game over text
+  // Create overlay if game is over
   if (gameOver) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -147,6 +147,12 @@ function draw() {
     ctx.font = "20px Arial";
     ctx.fillText("Press any key or click to restart", canvas.width / 2, canvas.height / 2 + 20);
   }
+
+  // Draw score over any overlay
+  ctx.fillStyle = "#000";
+  ctx.font = "20px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("Score: " + score, 10, 25);
 }
 
 // Main game loop
