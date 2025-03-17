@@ -98,8 +98,8 @@ const App: React.FC = () => {
     medal = {
       bronze: { imgX: 359, imgY: 157 },
       silver: { imgX: 359, imgY: 113 },
-      gold: { imgX: 359, imgY: 69 },
-      platinum: { imgX: 359, imgY: 25 },
+      gold: { imgX: 311, imgY: 157 },
+      platinum: { imgX: 311, imgY: 113 },
       width: 44, 
       height: 44, 
       x: 0,
@@ -107,8 +107,8 @@ const App: React.FC = () => {
       w: 44,
       h: 44,
 
-      relativeX: 31, 
-      relativeY: 47, 
+      relativeX: 27.5, 
+      relativeY: 88, 
       type: null as string | null,
 
       setMedalType: function(score: number) {
