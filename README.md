@@ -6,6 +6,26 @@ A simple side-scrolling game where the player controls a bird to fly between pip
 
 Project based on [noanonoa work](https://github.com/noanonoa/flappy-bird):
 
+## GETTING STARTED
+
+First, install the Ionic CLI tool:
+
+```bash
+npm i -g @ionic/cli
+```
+
+Install the dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
+
+```bash
+ionic serve
+```
+
 # WIREFRAME  
 ![wireframe for game screen](/public/assets/img/001-wireframe.png "Game Screen")  
 ![wireframe for collision mechanics](/public/assets/img/002-wireframe.png "Collision Mechanics")
