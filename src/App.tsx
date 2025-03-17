@@ -1,44 +1,60 @@
-import { Component, AfterViewInit } from '@angular/core';
+import React, { useEffect, useRef } from 'react';
+import { IonApp } from '@ionic/react';
+import { setupIonicReact } from '@ionic/react';
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  standalone: false,
-})
-export class AppComponent implements AfterViewInit {
+/* Core CSS required for Ionic components to work properly */
+import '@ionic/react/css/core.css';
 
-  // Define base dimensions (designed for 300x500 canvas)
-  private baseWidth = 300;
-  private baseHeight = 500;
+/* Basic CSS for apps built with Ionic */
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
 
-  constructor() {}
+/* Optional CSS utils that can be commented out */
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
 
-  ngAfterViewInit(): void {
-    /************************
-    ***** DECLARATIONS: *****
-    ************************/
-    let cvs: HTMLCanvasElement = document.getElementById('game') as HTMLCanvasElement;
-    let ctx = cvs.getContext('2d') as CanvasRenderingContext2D;
-    let description = document.getElementById('description') as HTMLElement;
+/* Dark mode */
+import '@ionic/react/css/palettes/dark.system.css';
+
+/* Theme variables */
+import './theme/variables.css';
+
+import './App.css';
+
+setupIonicReact();
+
+const App: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+  
+  const baseWidth = 300;
+  const baseHeight = 500;
+
+  useEffect(() => {
+    const cvs = canvasRef.current as HTMLCanvasElement;
+    const description = descriptionRef.current as HTMLElement;
+    const ctx = cvs.getContext('2d') as CanvasRenderingContext2D;
+    
     let theme1 = new Image();
     let theme2 = new Image();
     let frame: number = 0;
     let degree: number = Math.PI / 180;
     let scale: number = 1;
 
-    // Assets objects declarations (using original numbers; values will be scaled on resize)
     let bg: any, pipes: any, ground: any, map: any, score: any, bird: any, bird1: any, bird2: any;
     let getReady: any, gameOver: any, medal: any;
-    
-    // Sound effects
+
     const SFX_SCORE = new Audio();
     const SFX_FLAP = new Audio();
     const SFX_COLLISION = new Audio();
     const SFX_FALL = new Audio();
     const SFX_SWOOSH = new Audio();
-    
-    // Setup canvas and audio sources with asset paths updated to the ./assets folder
+
     theme1.src = './assets/img/og-theme.png';
     theme2.src = './assets/img/og-theme-2.png';
     SFX_SCORE.src = './assets/audio/sfx_point.wav';
@@ -46,8 +62,7 @@ export class AppComponent implements AfterViewInit {
     SFX_COLLISION.src = './assets/audio/sfx_hit.wav';
     SFX_FALL.src = './assets/audio/sfx_die.wav';
     SFX_SWOOSH.src = './assets/audio/sfx_swooshing.wav';
-    
-    // Game state
+
     let gameState = {
       current: 0,
       getReady: 0,
@@ -55,12 +70,11 @@ export class AppComponent implements AfterViewInit {
       gameOver: 2
     };
 
-    // Initialize objects using original base values; these will be updated in resizeCanvas()
     bg = {
       imgX: 0,
       imgY: 0,
-      width: 276, // original sprite region
-      height: 228, // original sprite region
+      width: 276, 
+      height: 228, 
       x: 0,
       y: 0,
       w: 276,
@@ -81,28 +95,22 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Medal object for the game over screen
-    // ORIGINAL SPRITE IMAGE COORDINATES (in pixels):
-    // Top-left of medal area in game over panel: ~31px from left, ~47px from top
-    // Game over panel is 226x158 pixels
     medal = {
-      // Medal sprite positions in sprite sheet
       bronze: { imgX: 359, imgY: 157 },
       silver: { imgX: 359, imgY: 113 },
       gold: { imgX: 359, imgY: 69 },
       platinum: { imgX: 359, imgY: 25 },
-      width: 44, // Original sprite size
-      height: 44, // Original sprite size
+      width: 44, 
+      height: 44, 
       x: 0,
       y: 0,
       w: 44,
       h: 44,
-      // Save original medal position relative to game over panel (will be used in resizeCanvas)
-      relativeX: 31, // Approximate X position relative to game over panel
-      relativeY: 47, // Approximate Y position relative to game over panel
+
+      relativeX: 31, 
+      relativeY: 47, 
       type: null as string | null,
-      
-      // Determine medal type based on score
+
       setMedalType: function(score: number) {
         if (score >= 40) {
           this.type = 'platinum';
@@ -116,16 +124,11 @@ export class AppComponent implements AfterViewInit {
           this.type = null;
         }
       },
-      
+
       render: function() {
         if (gameState.current === gameState.gameOver && this.type) {
           const medalType = this.type as 'bronze' | 'silver' | 'gold' | 'platinum';
-          
-          // DEBUG: Draw a red border around the medal area to visualize placement
-          // ctx.strokeStyle = 'red';
-          // ctx.lineWidth = 2;
-          // ctx.strokeRect(this.x, this.y, this.w, this.h);
-          
+
           ctx.drawImage(
             theme1,
             this[medalType].imgX, 
@@ -159,8 +162,7 @@ export class AppComponent implements AfterViewInit {
       render: function() {
         for (let i = 0; i < this.pipeGenerator.length; i++) {
           let pipe = this.pipeGenerator[i];
-          
-          // Draw top pipe at pipe.topY
+
           ctx.drawImage(
             theme2,
             this.top.imgX,
@@ -172,8 +174,7 @@ export class AppComponent implements AfterViewInit {
             this.w,
             this.h
           );
-          
-          // Draw bottom pipe at pipe.bottomY
+
           ctx.drawImage(
             theme2,
             this.bot.imgX,
@@ -191,38 +192,30 @@ export class AppComponent implements AfterViewInit {
         if (gameState.current !== gameState.play) {
           return;
         }
-        // Generate pipes at a fixed interval
+
         if (frame % 100 === 0) {
-          // Limit how high the pipes can go - ensure at least half the pipe is visible on screen
           const minPipeVisibility = -this.h / 2;
-          
-          // Calculate a random vertical position for the gap
-          // Gap can be positioned between 25% and 65% of the screen height
+
           let minGapPos = cvs.height * 0.25;
           let maxGapPos = cvs.height * 0.65 - this.gap; 
-          
-          // Random position for the center of the gap
+
           let gapCenter = Math.floor(Math.random() * (maxGapPos - minGapPos)) + minGapPos;
-          
-          // Position top pipe so its bottom is at the gap start
+
           let topPipeY = gapCenter - this.h;
-          
-          // Ensure the top pipe isn't too high off-screen
+
           topPipeY = Math.max(topPipeY, minPipeVisibility);
-          
-          // Position bottom pipe so its top is at the gap end
+
           let bottomPipeY = gapCenter + this.gap;
-          
-          // Ensure bottom pipe isn't too low (this should never happen but just in case)
+
           bottomPipeY = Math.min(bottomPipeY, cvs.height - ground.h - this.h/4);
-          
+
           this.pipeGenerator.push({
             x: cvs.width,
             topY: topPipeY,
             bottomY: bottomPipeY
           });
         }
-        
+
         for (let i = 0; i < this.pipeGenerator.length; i++) {
           let pg = this.pipeGenerator[i];
           let b = {
@@ -231,23 +224,22 @@ export class AppComponent implements AfterViewInit {
             top: bird.y - bird.r,
             bottom: bird.y + bird.r
           };
-          
+
           let p = {
             top: { top: pg.topY, bottom: pg.topY + this.h },
             bot: { top: pg.bottomY, bottom: pg.bottomY + this.h },
             left: pg.x,
             right: pg.x + this.w
           };
-          
+
           pg.x -= this.dx * scale;
-          
+
           if (pg.x < -this.w) {
             this.pipeGenerator.shift();
             score.current++;
             SFX_SCORE.play();
           }
-          
-          // Collision detection for top pipe
+
           if (
             b.left < p.right &&
             b.right > p.left &&
@@ -256,12 +248,11 @@ export class AppComponent implements AfterViewInit {
           ) {
             gameState.current = gameState.gameOver;
             SFX_COLLISION.play();
-            // Update best score and medal when game ends
+
             score.setBestScore();
             medal.setMedalType(score.current);
           }
-          
-          // Collision detection for bottom pipe
+
           if (
             b.left < p.right &&
             b.right > p.left &&
@@ -270,7 +261,7 @@ export class AppComponent implements AfterViewInit {
           ) {
             gameState.current = gameState.gameOver;
             SFX_COLLISION.play();
-            // Update best score and medal when game ends
+
             score.setBestScore();
             medal.setMedalType(score.current);
           }
@@ -302,7 +293,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Map for number images (remains the same)
     map = [
       { imgX: 496, imgY: 60, width: 12, height: 18 },
       { imgX: 135, imgY: 455, width: 10, height: 18 },
@@ -323,56 +313,44 @@ export class AppComponent implements AfterViewInit {
       y: 40,
       w: 15,
       h: 25,
-      
-      // Method to update best score
+
       setBestScore: function() {
         if (this.current > this.best) {
           this.best = this.current;
-          
-          // Save to localStorage to persist between sessions
+
           localStorage.setItem('flappyBirdBestScore', this.best.toString());
         }
       },
-      
+
       reset: function() {
         this.current = 0;
-        // We don't reset best score
       },
-      
+
       render: function() {
-        // Regular score display during gameplay
         if (gameState.current === gameState.play) {
           this.drawNumber(this.current, this.x, this.y);
         } 
-        // On game over screen, display both current and best scores
         else if (gameState.current === gameState.gameOver) {
-          // Position for current score (45% down from game over panel top)
           const scoreY = gameOver.y + gameOver.h * 0.38;
-          // Position for best score (60% down from game over panel top)
           const bestY = gameOver.y + gameOver.h * 0.58;
-          
-          // Display current score
+
           this.drawNumber(this.current, gameOver.x + gameOver.w * 0.6, scoreY);
-          
-          // Display best score
           this.drawNumber(this.best, gameOver.x + gameOver.w * 0.6, bestY);
         }
       },
-      
+
       drawNumber: function(value: number, x: number, y: number) {
         const string = value.toString();
         const digits = string.length;
-        
-        // Calculate starting position to center the score
+
         let startX = x - ((digits * this.w) / 2);
         if (digits % 2 === 0) {
-          startX += this.w / 4; // Adjust for even number of digits
+          startX += this.w / 4; 
         }
-        
-        // Draw each digit
+
         for (let i = 0; i < digits; i++) {
           const digit = parseInt(string[i]);
-          
+
           ctx.drawImage(
             theme2,
             map[digit].imgX,
@@ -388,13 +366,11 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Load the best score from localStorage if available
     const savedBestScore = localStorage.getItem('flappyBirdBestScore');
     if (savedBestScore) {
       score.best = parseInt(savedBestScore, 10);
     }
 
-    // Yellow bird
     bird = {
       animation: [
         { imgX: 276, imgY: 114 },
@@ -414,14 +390,14 @@ export class AppComponent implements AfterViewInit {
       gravity: 0.32,
       velocity: 0,
       rotation: 0,
-      
+
       reset: function() {
         this.velocity = 0;
         this.y = 160 * scale;
         this.rotation = 0;
         this.fr = 0;
       },
-      
+
       render: function() {
         let birdFrame = this.animation[this.fr];
         ctx.save();
@@ -461,7 +437,7 @@ export class AppComponent implements AfterViewInit {
             if (gameState.current === gameState.play) {
               gameState.current = gameState.gameOver;
               SFX_FALL.play();
-              // Update best score when game ends by hitting ground
+
               score.setBestScore();
               medal.setMedalType(score.current);
             }
@@ -473,7 +449,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Red bird (similar scaling)
     bird1 = {
       animation: [
         { imgX: 115, imgY: 381 },
@@ -517,7 +492,7 @@ export class AppComponent implements AfterViewInit {
             if (gameState.current === gameState.play) {
               gameState.current = gameState.gameOver;
               SFX_FALL.play();
-              // Update best score
+
               score.setBestScore();
               medal.setMedalType(score.current);
             }
@@ -529,7 +504,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Blue bird (similar scale)
     bird2 = {
       animation: [
         { imgX: 87, imgY: 491 },
@@ -573,7 +547,7 @@ export class AppComponent implements AfterViewInit {
             if (gameState.current === gameState.play) {
               gameState.current = gameState.gameOver;
               SFX_FALL.play();
-              // Update best score
+
               score.setBestScore();
               medal.setMedalType(score.current);
             }
@@ -585,7 +559,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Get ready screen
     getReady = {
       imgX: 0,
       imgY: 228,
@@ -602,7 +575,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    // Game over screen
     gameOver = {
       imgX: 174,
       imgY: 228,
@@ -615,98 +587,76 @@ export class AppComponent implements AfterViewInit {
       render: function() {
         if (gameState.current === gameState.gameOver) {
           ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x, this.y, this.w, this.h);
-          description.style.visibility = "visible";
-          
-          // DEBUG: Draw red outline around game over panel to debug positioning
-          // ctx.strokeStyle = 'red';
-          // ctx.lineWidth = 2;
-          // ctx.strokeRect(this.x, this.y, this.w, this.h);
+          if (description) {
+            description.style.visibility = "visible";
+          }
         }
       }
     };
 
-    // Resize canvas and re-scale assets based on window dimensions
     const resizeCanvas = () => {
-      cvs.width = window.innerWidth;
-      cvs.height = window.innerHeight;
-      // Choose a uniform scale based on the base dimensions
-      scale = Math.min(cvs.width/this.baseWidth, cvs.height/this.baseHeight);
+      if (cvs) {
+        cvs.width = window.innerWidth;
+        cvs.height = window.innerHeight;
 
-      // Update positions and dimensions based on the scale
-      // Update background
-      bg.w = 276 * scale;
-      bg.h = 228 * scale;
-      bg.y = cvs.height - bg.h;
+        scale = Math.min(cvs.width/baseWidth, cvs.height/baseHeight);
 
-      // Update ground
-      ground.w = 224 * scale;
-      ground.h = 112 * scale;
-      ground.y = cvs.height - ground.h;
+        bg.w = 276 * scale;
+        bg.h = 228 * scale;
+        bg.y = cvs.height - bg.h;
 
-      // Update getReady screen
-      getReady.w = 174 * scale;
-      getReady.h = 160 * scale;
-      getReady.x = (cvs.width - getReady.w) / 2;
-      getReady.y = (cvs.height - getReady.h) / 2;
+        ground.w = 224 * scale;
+        ground.h = 112 * scale;
+        ground.y = cvs.height - ground.h;
 
-      // Update gameOver screen
-      gameOver.w = 226 * scale;
-      gameOver.h = 158 * scale;
-      gameOver.x = (cvs.width - gameOver.w) / 2;
-      gameOver.y = (cvs.height - gameOver.h) / 2;
+        getReady.w = 174 * scale;
+        getReady.h = 160 * scale;
+        getReady.x = (cvs.width - getReady.w) / 2;
+        getReady.y = (cvs.height - getReady.h) / 2;
 
-      // NEW APPROACH: Calculate medal position based on its relative position in game over panel
-      // The medal position in the original sprite is approximately at (31, 47) pixels from the top-left
-      // of the game over panel. We scale that position according to our current scale.
-      medal.w = 40 * scale; 
-      medal.h = 40 * scale;
-      
-      // Calculate medal position based on game over panel position and original relative position
-      const medalRelativeXScale = medal.relativeX / gameOver.width; // Convert to ratio of panel width
-      const medalRelativeYScale = medal.relativeY / gameOver.height; // Convert to ratio of panel height
-      
-      medal.x = gameOver.x + (gameOver.w * medalRelativeXScale);
-      medal.y = gameOver.y + (gameOver.h * medalRelativeYScale);
+        gameOver.w = 226 * scale;
+        gameOver.h = 158 * scale;
+        gameOver.x = (cvs.width - gameOver.w) / 2;
+        gameOver.y = (cvs.height - gameOver.h) / 2;
 
-      // Update pipes scaling
-      pipes.w = 55 * scale;
-      pipes.h = 300 * scale;
-      pipes.gap = 150 * scale;
+        medal.w = 40 * scale; 
+        medal.h = 40 * scale;
 
-      // Update score positioning
-      score.x = cvs.width / 2;
-      score.y = 40 * scale;
-      score.w = 15 * scale;
-      score.h = 25 * scale;
+        const medalRelativeXScale = medal.relativeX / gameOver.width; 
+        const medalRelativeYScale = medal.relativeY / gameOver.height; 
 
-      // Update birds and their initial coordinates and sizes
-      bird.w = 34 * scale;
-      bird.h = 24 * scale;
-      bird.x = 50 * scale;
-      bird.y = 160 * scale;
-      bird.r = 12 * scale;
+        medal.x = gameOver.x + (gameOver.w * medalRelativeXScale);
+        medal.y = gameOver.y + (gameOver.h * medalRelativeYScale);
 
-      bird1.w = 34 * scale;
-      bird1.h = 24 * scale;
-      bird1.x = 50 * scale;
-      bird1.y = 160 * scale;
-      bird1.r = 12 * scale;
+        pipes.w = 55 * scale;
+        pipes.h = 300 * scale;
+        pipes.gap = 150 * scale;
 
-      bird2.w = 34 * scale;
-      bird2.h = 24 * scale;
-      bird2.x = 50 * scale;
-      bird2.y = 160 * scale;
-      bird2.r = 12 * scale;
+        score.x = cvs.width / 2;
+        score.y = 40 * scale;
+        score.w = 15 * scale;
+        score.h = 25 * scale;
+
+        bird.w = 34 * scale;
+        bird.h = 24 * scale;
+        bird.x = 50 * scale;
+        bird.y = 160 * scale;
+        bird.r = 12 * scale;
+
+        bird1.w = 34 * scale;
+        bird1.h = 24 * scale;
+        bird1.x = 50 * scale;
+        bird1.y = 160 * scale;
+        bird1.r = 12 * scale;
+
+        bird2.w = 34 * scale;
+        bird2.h = 24 * scale;
+        bird2.x = 50 * scale;
+        bird2.y = 160 * scale;
+        bird2.r = 12 * scale;
+      }
     };
 
-    // Add resize event listener
-    window.addEventListener('resize', resizeCanvas);
-    // Initialize canvas size and assets positions
-    resizeCanvas();
-
-    /************************
-    ***** FUNCTIONS: ********
-    ************************/
     const draw = () => {
       ctx.fillStyle = '#00bbc4';
       ctx.fillRect(0, 0, cvs.width, cvs.height);
@@ -715,11 +665,11 @@ export class AppComponent implements AfterViewInit {
       ground.render();
       bird.render();
       getReady.render();
-      gameOver.render(); // Draw gameOver first
+      gameOver.render(); 
       if (gameState.current === gameState.gameOver) {
-        medal.render(); // Then draw medal (so it appears on top of gameOver)
+        medal.render(); 
       }
-      score.render(); // Finally draw score (on top of everything)
+      score.render();
     };
 
     const update = () => {
@@ -735,33 +685,54 @@ export class AppComponent implements AfterViewInit {
       frame++;
     };
 
-    // Added function to reset the game
     const resetGame = () => {
       pipes.reset();
       score.reset();
       bird.reset();
-      medal.type = null; // Reset medal
+      medal.type = null; 
       gameState.current = gameState.getReady;
       SFX_SWOOSH.play();
-      description.style.visibility = "hidden";
+      if (description) {
+        description.style.visibility = "hidden";
+      }
     };
 
-    loop();
-    setInterval(loop, 17);
-
-    /*************************
-    ***** EVENT HANDLERS *****
-    *************************/
-    cvs.addEventListener('click', () => {
+    const handleClick = () => {
       if (gameState.current === gameState.getReady) {
         gameState.current = gameState.play;
       } else if (gameState.current === gameState.play) {
         bird.flap();
         SFX_FLAP.play();
-        description.style.visibility = "hidden";
+        if (description) {
+          description.style.visibility = "hidden";
+        }
       } else if (gameState.current === gameState.gameOver) {
         resetGame();
       }
-    });
-  }
-}
+    };
+
+    // Set up event listeners
+    window.addEventListener('resize', resizeCanvas);
+    cvs.addEventListener('click', handleClick);
+
+    // Initialize the game
+    resizeCanvas();
+    const gameInterval = setInterval(loop, 17);
+
+    // Cleanup function when component unmounts
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cvs.removeEventListener('click', handleClick);
+      clearInterval(gameInterval);
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
+
+  return (
+    <IonApp>
+      <canvas ref={canvasRef} id="game"></canvas>
+      <p ref={descriptionRef} id="description" className="game-description">Press 'spacebar' or 'click' to begin</p>
+    </IonApp>
+  );
+};
+
+export default App;
