@@ -62,8 +62,10 @@ ionic serve
  * add a running time to display
  * make the game web responsive
 
-# GAMEPLAN
 ---
+
+# GAMEPLAN
+
 ## HTML
  - [X] container for gaming screen
  - [X] game title
