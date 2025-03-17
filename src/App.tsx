@@ -725,7 +725,7 @@ const App: React.FC = () => {
       cvs.removeEventListener('click', handleClick);
       clearInterval(gameInterval);
     };
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
   return (
     <IonApp>
